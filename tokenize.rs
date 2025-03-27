@@ -10,6 +10,15 @@ pub enum TokenType{
 	Invalid,
 }
 
+#[repr(u32)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+pub enum Operation{
+	Add,
+	Sub,
+	Mul,
+	Div,
+}
+
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Token {
 	id: TokenType,
@@ -22,7 +31,7 @@ pub struct Token {
 pub fn parse(text: String) -> Vec<Token>{
 
 	let mut expression: Vec<Token> = Vec::new();
-	let mut input: String = "".to_string();
+	let mut input: String = String::new();
 	let mut id = TokenType::None;
 
 	for c in text.chars(){
@@ -62,17 +71,30 @@ pub fn parse(text: String) -> Vec<Token>{
 		
 		}
 
-
 		// if braket
-		if "()".contains(c){
-
-			if id != TokenType::OpenBrak && id != TokenType::CloseBrak{
+		if c == '('{
+			if id != TokenType::OpenBrak  {
 				if id != TokenType::None{
 					add_token(&mut expression,&id,&mut input);
 				}
 
 				input.push(c);
-				id = if c == '(' { TokenType::OpenBrak }else{ TokenType::CloseBrak };
+				id = TokenType::OpenBrak;
+				continue;
+			}
+			add_token(&mut expression,&id,&mut input);
+			input.push(c);
+			continue;
+		
+		}
+		if c == ')'{
+			if id != TokenType::CloseBrak {
+				if id != TokenType::None{
+					add_token(&mut expression,&id,&mut input);
+				}
+
+				input.push(c);
+				id = TokenType::CloseBrak;
 				continue;
 			}
 			add_token(&mut expression,&id,&mut input);
@@ -113,11 +135,11 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 		TokenType::Operation => {
 			
 			let (val,pri) = match input.as_str(){
-				"+" => (0,0),
-				"-" => (1,0),
-				"*" => (2,1),
-				"/" => (3,1),
-				_ => (0,0)
+				"+" => (Operation::Add as u32,0),
+				"-" => (Operation::Sub as u32,0),
+				"*" => (Operation::Mul as u32,1),
+				"/" => (Operation::Div as u32,1),
+				_   => (Operation::Add as u32,0),
 			};
 
 			expression.push(Token {id: *id, value: val, prio: pri});
