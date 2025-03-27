@@ -1,20 +1,26 @@
 use std::env;
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 enum TokenType{
 	Number,
 	Operation,
-
+	OpenBrak,
+	CloseBrak,
 
 	None, /* used when saving what the previous token is, and there is no previous token*/
 	Invalid,
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 struct Token {
 	id: TokenType,
 	value: u32,
+	prio: u8,
 }
+
+
+
+
 
 fn main(){
 	let argv: Vec<String> = env::args().collect();
@@ -28,99 +34,132 @@ fn main(){
 		println!("{}",arg);
 		args.push_str(arg);
 	}
-	println!("{}",args);
 
 
+	let expression = parse(args);
+	dbg!(expression);
+}	
+
+
+
+
+
+
+
+fn parse(text: String) -> Vec<Token>{
 
 	let mut expression: Vec<Token> = Vec::new();
-	/*expression.push(Token {id: TokenType::Number, value: 15});*/
-
 	let mut input: String = "".to_string();
 	let mut id = TokenType::None;
 
-	for (c in args.chars()){
+	for c in text.chars(){
+
+		// if number
 		if c.is_digit(10){
 
-			if (id == TokenType::None){
-				id.push(c);
+			if id != TokenType::Number{
+				if id != TokenType::None{
+					add_token(&mut expression,&id,&mut input);
+				}
+				
+				input.push(c);
 				id = TokenType::Number;
 				continue;
 			}
-			if (id != TokenType::Number){
-				add_token(expression,id,input);
-
-				id.push(c);
-				id = TokenType::Number;
-				continue;
-			}
-
-			id.push(c);
+			input.push(c);
 			continue;
 		}
 
-		if (c.contains("+-*/")){
 
+		// if op
+		if "+-*/".contains(c){
 
-			if (id == TokenType::None){
-				id.push(c);
+			if id != TokenType::Operation{
+				if id != TokenType::None{
+					add_token(&mut expression,&id,&mut input);
+				}
+
+				input.push(c);
 				id = TokenType::Operation;
 				continue;
 			}
-			if (id != TokenType::Number){
-				add_token(expression,id,input);
-
-				id.push(c);
-				id = TokenType::Operation;
-				continue;
-			}
-			add_token(expression,id,input);
-			id.push(c);
+			add_token(&mut expression,&id,&mut input);
+			input.push(c);
 			continue;
 		
 		}
 
-		if (id == TokenType::None){
-				id.push(c);
-				id = TokenType::Invalid;
-				continue;
-			}
-			if (id != TokenType::Invalid){
-				add_token(expression,id,input);
 
-				id.push(c);
-				id = TokenType::Invalid;
+		// if braket
+		if "()".contains(c){
+
+			if id != TokenType::OpenBrak && id != TokenType::CloseBrak{
+				if id != TokenType::None{
+					add_token(&mut expression,&id,&mut input);
+				}
+
+				input.push(c);
+				id = if c == '(' { TokenType::OpenBrak }else{ TokenType::CloseBrak };
 				continue;
 			}
-			add_token(expression,id,input);
-			id.push(c);
+			add_token(&mut expression,&id,&mut input);
+			input.push(c);
 			continue;
-
-	}
-
-
-	dbg!(expression);
-}	
-
-fn add_token(expression: mut &Vec<Token>, id: TokenType, input: mut &String){
-
-	if (input == TokenType::Operation){
-		let val = match(input){
-			"+" => 0,
-			"-" => 1,
-			"*" => 2,
-			"/" => 3,
-			_ => 0,
+		
 		}
-		expression.push(Token {id: id, value: val});
+
+
+		// if other
+		{
+			if id != TokenType::Invalid{
+				if id != TokenType::None{
+					add_token(&mut expression,&id,&mut input);
+				}
+
+				input.push(c);
+				id = TokenType::Invalid;
+				continue;
+			}
+			add_token(&mut expression,&id,&mut input);
+			input.push(c);
+			continue;
+		}
+
 	}
-	if (input == TokenType::Number){
-		expression.push(Token {id: id, value: input.parse()});
-	}
-	if (input == TokenType::Invalid){
-		expression.push(Token {id: id value: 0});
+	add_token(&mut expression,&id,&mut input);
+
+	return expression;
+}
+
+
+
+fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String){
+
+
+	match *id{
+		TokenType::Operation => {
+			
+			let (val,pri) = match input.as_str(){
+				"+" => (0,0),
+				"-" => (1,0),
+				"*" => (2,1),
+				"/" => (3,1),
+				_ => (0,0)
+			};
+
+			expression.push(Token {id: *id, value: val, prio: pri});
+		},
+
+		TokenType::Number => {
+			expression.push(Token {id: *id, value: input.parse::<u32>().expect("Token of Type number should contain a value"), prio: 0});
+		},
+
+		_ => {
+			expression.push(Token {id: *id, value: 0, prio: 0});
+		}
 	}
 
 
-	input = "".to_string();
+	input.clear();
 }
 
