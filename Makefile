@@ -1,4 +1,4 @@
-SOURCES := $(wildcard *.rs)
+SOURCES := main.rs
 OUTPUT := calc.elf
 
 all: $(OUTPUT)
