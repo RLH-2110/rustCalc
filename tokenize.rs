@@ -115,7 +115,6 @@ pub fn parse(text: String) -> Vec<Token>{
 				id = TokenType::Invalid;
 				continue;
 			}
-			add_token(&mut expression,&id,&mut input);
 			input.push(c);
 			continue;
 		}

@@ -1,10 +1,12 @@
-SOURCES := main.rs
+
+PRIMARY_SOURCE := main.rs
+SOURCES := $(wildcard *.rs)
 OUTPUT := calc.elf
 
 all: $(OUTPUT)
 
 $(OUTPUT): $(SOURCES)
-	rustc $(SOURCES) -o $(OUTPUT)
+	rustc $(PRIMARY_SOURCE) -o $(OUTPUT)
 
 run: all
 	./$(OUTPUT) $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
