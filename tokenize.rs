@@ -28,7 +28,7 @@ pub struct Token {
 
 
 
-pub fn parse(text: String) -> Vec<Token>{
+pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
 	let mut expression: Vec<Token> = Vec::new();
 	let mut input: String = String::new();
@@ -133,7 +133,7 @@ pub fn parse(text: String) -> Vec<Token>{
 
 	}
 	add_token(&mut expression,&id,&mut input);
-	if invalid_token { println!(""); }
+	if invalid_token { println!(""); return Err(0); }
 
 	if braket_count != 0{
 		if braket_count > 0{
@@ -141,9 +141,10 @@ pub fn parse(text: String) -> Vec<Token>{
 		}else{
 			println!("there are {} unopnened brakets!",0-braket_count);
 		}
+		return Err(1);
 	}
 
-	return expression;
+	return Ok(expression);
 }
 
 

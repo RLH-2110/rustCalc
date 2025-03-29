@@ -11,7 +11,10 @@ fn main(){
 	}
 
 	let args: String = argv[1..].join("");
-	let expression = tokenize::parse(args);
+	let expression = match tokenize::parse(args){
+		Ok(e) => e,
+		Err(_) => {return;},
+	};
 	dbg!(expression);
 }	
 
