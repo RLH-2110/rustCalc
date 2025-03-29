@@ -3,8 +3,8 @@
 pub enum TokenType{
 	Number,
 	Operation,
-	OpenBrak,
-	CloseBrak,
+	OpenParen,
+	CloseParen,
 
 	None, /* used when saving what the previous token is, and there is no previous token*/
 	Invalid,
@@ -22,7 +22,7 @@ pub enum Operation{
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Token {
 	pub id: TokenType,
-	pub value: u32,
+	pub value: i64,
 	pub prio: u8,
 }
 
@@ -76,13 +76,13 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 		// if braket
 		if c == '('{
 			braket_count += 1;
-			if id != TokenType::OpenBrak  {
+			if id != TokenType::OpenParen  {
 				if id != TokenType::None{
 					add_token(&mut expression,&id,&mut input);
 				}
 
 				input.push(c);
-				id = TokenType::OpenBrak;
+				id = TokenType::OpenParen;
 				continue;
 			}
 			add_token(&mut expression,&id,&mut input);
@@ -92,13 +92,13 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 		}
 		if c == ')'{
 			braket_count -= 1;
-			if id != TokenType::CloseBrak {
+			if id != TokenType::CloseParen {
 				if id != TokenType::None{
 					add_token(&mut expression,&id,&mut input);
 				}
 
 				input.push(c);
-				id = TokenType::CloseBrak;
+				id = TokenType::CloseParen;
 				continue;
 			}
 			add_token(&mut expression,&id,&mut input);
@@ -156,18 +156,18 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 		TokenType::Operation => {
 			
 			let (val,pri) = match input.as_str(){
-				"+" => (Operation::Add as u32,0),
-				"-" => (Operation::Sub as u32,0),
-				"*" => (Operation::Mul as u32,1),
-				"/" => (Operation::Div as u32,1),
-				_   => (Operation::Add as u32,0),
+				"+" => (Operation::Add as i64,0),
+				"-" => (Operation::Sub as i64,0),
+				"*" => (Operation::Mul as i64,1),
+				"/" => (Operation::Div as i64,1),
+				_   => (Operation::Add as i64,0),
 			};
 
 			expression.push(Token {id: *id, value: val, prio: pri});
 		},
 
 		TokenType::Number => {
-			expression.push(Token {id: *id, value: input.parse::<u32>().expect("Token of Type number should contain a value"), prio: 0});
+			expression.push(Token {id: *id, value: input.parse::<u32>().expect("Token of Type number should contain a value") as i64, prio: 0});
 		},
 
 		_ => {

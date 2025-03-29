@@ -1,54 +1,96 @@
 
 use tokenize::Token;
 use tokenize::TokenType;
-//use tokenize::Operation;
+use tokenize::Operation;
 
-pub fn solve(tokens: Vec<Token>) -> u64 {
+pub fn solve(mut tokens: Vec<Token>) -> i64 {
+
+	if tokens.len() == 0 {
+		println!("Something went horribly wrong! there are no tokens!");
+		return 0;
+	}
 
 	dbg!(&tokens);
 
 	let mut newtoks = Vec::<Token>::new();
 
-	//let mut i = 0;
+	let mut i = 0;
 
 
-	// step 1: remove brakets
+	// remove unary -
 
-
-	let mut brak_level = 0;
-	for mut token in tokens{
-		token.prio += brak_level;
-
-		match token.id {
-			TokenType::OpenBrak => { brak_level+=5; },
-			TokenType::CloseBrak => { brak_level-=5; },
-			_ => { newtoks.push(token); }
+	loop{
+		if i >= tokens.len(){
+			break;
 		}
+
+		if tokens[i].id == TokenType::Operation && tokens[i].value == Operation::Sub as i64 {
+			let ntok = peek(&i,1,&tokens);
+
+			if ntok.is_none() {
+				break;
+			}
+
+			let ptok = peek(&i,-1,&tokens);
+
+			if ptok.is_none() || ptok.unwrap().id == TokenType::Operation || ntok.unwrap().id == TokenType::OpenParen {
+
+				match ntok.unwrap().id {
+					TokenType::Number => 
+						{
+							tokens[i+1].value = 0-tokens[i+1].value;
+							newtoks.push(tokens[i+1]); // push the negated number
+							i+=2; 
+						},
+					TokenType::OpenParen => 
+						{ 
+							newtoks.push(tokens[i+1]); // push the "("
+							i+=2;
+
+							loop {
+								if i >= tokens.len() || tokens[i].id == TokenType::CloseParen { break; }
+								if tokens[i].id == TokenType::Number { tokens[i].value = 0-tokens[i].value; } // negate all numbers
+								newtoks.push(tokens[i]); // push element
+								i+=1;
+							}
+
+							newtoks.push(tokens[i]); // push the ")"
+							i+=1;
+						},
+					_ => 
+						{	
+							println!("MUTLIPLE OPERATIONS AFTER EACH OTHER WITH NO NUMBER!");
+							std::process::exit(1);
+						},
+				}
+
+
+			}else {
+				newtoks.push(tokens[i]);
+				i += 1;
+			}
+			
+		}else{
+			newtoks.push(tokens[i]);
+			i+=1;
+		}
+
 	}
 
-	let toks = newtoks;
-	newtoks = Vec::<Token>::new();
 
-	println!("brakets removed:");
-	dbg!(toks);
+	println!("unary minus removed:");
+	dbg!(newtoks);
 
-	/*loop{
-
-
-		if newtoks.len() <= 1 { break; }
-	}
-
-	if (newtoks.len() < 1){
-		println!("Critical error! there was no result!");
-	}
-	return newtoks[0];*/
 	return 0;
 }
 
 
-/*fn peek(i: &i64, amount: i64, vec: &Vec<Token>) -> Option<Token>{
-	if *i + amount < 0 { return None; }
-	if *i + amount >= vec.len().try_into().unwrap() { return None; }
+fn peek<'a>(i: &usize, amount: i64, vec: &'a Vec<Token>) -> Option<&'a Token>{
 
-	return Some(vec[*i+amount]);
-}*/
+	let index: i64 = *i as i64;
+
+	if index + amount < 0 { return None; }
+	if index + amount >= vec.len() as i64 { return None; }
+
+	return Some(&vec[(index+amount) as usize]);
+}
