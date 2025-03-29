@@ -1,7 +1,7 @@
 use std::env;
 
 mod tokenize;
-
+mod solver;
 
 fn main(){
 	let argv: Vec<String> = env::args().collect();
@@ -11,8 +11,11 @@ fn main(){
 	}
 
 	let args: String = argv[1..].join("");
-	let expression = tokenize::parse(args);
-	dbg!(expression);
+	let expression = match tokenize::parse(args){
+		Ok(e) => e,
+		Err(_) => {return;},
+	};
+	solver::solve(expression);
 }	
 
 
