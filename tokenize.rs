@@ -21,9 +21,9 @@ pub enum Operation{
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Token {
-	id: TokenType,
-	value: u32,
-	prio: u8,
+	pub id: TokenType,
+	pub value: u32,
+	pub prio: u8,
 }
 
 
