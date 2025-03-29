@@ -33,6 +33,8 @@ pub fn parse(text: String) -> Vec<Token>{
 	let mut expression: Vec<Token> = Vec::new();
 	let mut input: String = String::new();
 	let mut id = TokenType::None;
+	let mut invalid_token = false; /*for handleing newlines for invalid token error prints*/
+	let mut braket_count = 0;
 
 	for c in text.chars(){
 
@@ -73,6 +75,7 @@ pub fn parse(text: String) -> Vec<Token>{
 
 		// if braket
 		if c == '('{
+			braket_count += 1;
 			if id != TokenType::OpenBrak  {
 				if id != TokenType::None{
 					add_token(&mut expression,&id,&mut input);
@@ -88,6 +91,7 @@ pub fn parse(text: String) -> Vec<Token>{
 		
 		}
 		if c == ')'{
+			braket_count -= 1;
 			if id != TokenType::CloseBrak {
 				if id != TokenType::None{
 					add_token(&mut expression,&id,&mut input);
@@ -106,21 +110,38 @@ pub fn parse(text: String) -> Vec<Token>{
 
 		// if other
 		{
+			
 			if id != TokenType::Invalid{
+				if invalid_token { println!(""); } /*new invalid token error message*/
+				print!("Unknown Token: ");
+
 				if id != TokenType::None{
 					add_token(&mut expression,&id,&mut input);
 				}
 
+				print!("{c}");
 				input.push(c);
 				id = TokenType::Invalid;
+
+				invalid_token = true;
 				continue;
 			}
 			input.push(c);
+			print!("{c}");
 			continue;
 		}
 
 	}
 	add_token(&mut expression,&id,&mut input);
+	if invalid_token { println!(""); }
+
+	if braket_count != 0{
+		if braket_count > 0{
+			println!("there are {braket_count} unclosed brakets!");
+		}else{
+			println!("there are {} unopnened brakets!",0-braket_count);
+		}
+	}
 
 	return expression;
 }
