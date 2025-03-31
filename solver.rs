@@ -11,7 +11,6 @@ pub fn solve(tokens: Vec<Token>) -> i64 {
 		return 0;
 	}
 
-	//dbg!(&tokens);
 	print_tokens(&tokens);
 
 	// remove unary -
@@ -19,7 +18,7 @@ pub fn solve(tokens: Vec<Token>) -> i64 {
 
 
 	println!("unary minus removed:");
-	//dbg!(newtoks);
+	//dbg!(&newtoks);
 	print_tokens(&newtoks);
 
 	return 0;
@@ -36,28 +35,29 @@ fn peek<'a>(i: &usize, amount: i64, vec: &'a Vec<Token>) -> Option<&'a Token>{
 	return Some(&vec[(index+amount) as usize]);
 }
 
-fn remove_unary_minus(mut tokens: Vec<Token>) -> Vec<Token> {
+fn remove_unary_minus(tokens: Vec<Token>) -> Vec<Token> {
 
-	let mut newtoks = Vec::<Token>::new();
+	let mut toks = tokens.clone();
 	let mut found_unary: bool;
 
 	loop{
+		let mut newtoks = Vec::<Token>::new();
 		found_unary = false;
 
 		let mut i = 0;
 		loop{
-			if i >= tokens.len(){
+			if i >= toks.len(){
 				break;
 			}
 
-			if tokens[i].id == TokenType::Operation && tokens[i].value == Operation::Sub as i64 {
-				let ntok = peek(&i,1,&tokens);
+			if toks[i].id == TokenType::Operation && toks[i].value == Operation::Sub as i64 {
+				let ntok = peek(&i,1,&toks);
 
 				if ntok.is_none() {
 					break;
 				}
 
-				let ptok = peek(&i,-1,&tokens);
+				let ptok = peek(&i,-1,&toks);
 
 				if ptok.is_none() || ptok.unwrap().id == TokenType::Operation || ntok.unwrap().id == TokenType::OpenParen {
 
@@ -65,23 +65,23 @@ fn remove_unary_minus(mut tokens: Vec<Token>) -> Vec<Token> {
 					match ntok.unwrap().id {
 						TokenType::Number => 
 							{
-								tokens[i+1].value = 0-tokens[i+1].value;
-								newtoks.push(tokens[i+1]); // push the negated number
+								toks[i+1].value = 0-toks[i+1].value;
+								newtoks.push(toks[i+1]); // push the negated number
 								i+=2; 
 							},
 						TokenType::OpenParen => 
 							{ 
-								newtoks.push(tokens[i+1]); // push the "("
+								newtoks.push(toks[i+1]); // push the "("
 								i+=2;
 
 								loop {
-									if i >= tokens.len() || tokens[i].id == TokenType::CloseParen { break; }
-									if tokens[i].id == TokenType::Number { tokens[i].value = 0-tokens[i].value; } // negate all numbers
-									newtoks.push(tokens[i]); // push element
+									if i >= toks.len() || toks[i].id == TokenType::CloseParen { break; }
+									if toks[i].id == TokenType::Number { toks[i].value = 0-toks[i].value; } // negate all numbers
+									newtoks.push(toks[i]); // push element
 									i+=1;
 								}
 
-								newtoks.push(tokens[i]); // push the ")"
+								newtoks.push(toks[i]); // push the ")"
 								i+=1;
 							},
 						_ => 
@@ -93,19 +93,20 @@ fn remove_unary_minus(mut tokens: Vec<Token>) -> Vec<Token> {
 
 
 				}else {
-					newtoks.push(tokens[i]);
+					newtoks.push(toks[i]);
 					i += 1;
 				}
 				
 			}else{
-				newtoks.push(tokens[i]);
+				newtoks.push(toks[i]);
 				i+=1;
 			}
 
 		}
 
+		toks = newtoks;
 		if found_unary == false {
-			return newtoks;
+			return toks;
 		}
 	}
 
