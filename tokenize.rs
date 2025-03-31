@@ -10,7 +10,7 @@ pub enum TokenType{
 	Invalid,
 }
 
-#[repr(u32)]
+#[repr(i64)]
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum Operation{
 	Add,
@@ -177,4 +177,39 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 
 
 	input.clear();
+}
+
+
+
+
+pub fn token_to_string(token: &Token) -> String {
+	match token.id {
+
+
+		TokenType::Operation => {
+			// rust is evil and does not let me use my enum here.
+			match token.value {
+				0 => {return "+".to_string(); }, // Operation::Add
+				1 => {return "-".to_string(); }, // Operation::Sub
+				2 => {return "*".to_string(); }, // Operation::Mul
+				3 => {return "/".to_string(); }, // Operation::Div
+				_ => { unimplemented!();	},
+			}
+		},
+
+
+		TokenType::OpenParen  => {return "(".to_string(); },
+		TokenType::CloseParen => {return ")".to_string(); },
+		
+		TokenType::Number => {return token.value.to_string(); },
+
+		_ => {	unimplemented!();	}
+	}
+}
+
+pub fn print_tokens(tokens: &Vec<Token>){
+	for token in tokens {
+		print!("{}",token_to_string(&token));
+	}
+	print!("\n");
 }
