@@ -3,6 +3,7 @@ use tokenize::Token;
 use tokenize::TokenType;
 use tokenize::Operation;
 use tokenize::print_tokens;
+use std::process;
 
 pub fn solve(tokens: Vec<Token>) -> i64 {
 
@@ -11,13 +12,11 @@ pub fn solve(tokens: Vec<Token>) -> i64 {
 		return 0;
 	}
 
-	print_tokens(&tokens);
-
 	// remove unary -
 	let newtoks = remove_unary_minus(tokens);
 
+	find_double_operators(&newtoks);
 
-	println!("unary minus removed:");
 	//dbg!(&newtoks);
 	print_tokens(&newtoks);
 
@@ -107,6 +106,24 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Vec<Token> {
 		toks = newtoks;
 		if found_unary == false {
 			return toks;
+		}
+	}
+}
+
+fn find_double_operators(tokens: &Vec<Token>){
+
+	let mut had_op = false;
+
+	for token in tokens{
+		if token.id == TokenType::Operation {
+			if had_op {
+				println!("Double operators found!");
+				process::exit(0);
+			}else{
+				had_op = true;
+			}
+		}else{
+			had_op = false;
 		}
 	}
 
