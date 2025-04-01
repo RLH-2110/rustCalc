@@ -22,12 +22,22 @@ pub enum Operation{
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Token {
 	pub id: TokenType,
-	pub value: i64,
-	pub prio: u8,
+	pub value: i64, // saves either the value for a number, or the operation for operations. In
+                        // case of operation, the Operation enum is used.
+	pub prio: u8,   // is used to find priorities for operations. normally + has 0 and * has 1
 }
 
 
-
+/* turns a string (without spaces or newlines!) into a list of tokens
+ *
+ *  text: a string without whitespace
+ *
+ *  returns: an result with either a vector of tokens or an u8 error code
+ *
+ *  error codes:
+ *      0: invalid token
+ *      1: a parentesis was wither opened and not closed, or closed and not opened.
+ */
 pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
 	let mut expression: Vec<Token> = Vec::new();
@@ -145,6 +155,8 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 		if braket_count > 0{
 			println!("there are {braket_count} unclosed brakets!");
 		}else{
+                        // will never execute, since we check for this when we parse ')'
+                        // I left it in in case I remove it. "doppelt hält besser."
 			println!("there are {} unopnened brakets!",0-braket_count);
 		}
 		return Err(1);
@@ -155,6 +167,15 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
 
 
+/* creates a token with a token type and a string
+ *
+ * expression: the vector of tokens we want to add the token to
+ * id: the TokenType we want to add
+ * input: a string with the data for the token, usually a number or an operator, but it can aslo be
+ *      a parantesis, though in that case the input is unused.
+ *
+ *
+ */
 pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String){
 
 
