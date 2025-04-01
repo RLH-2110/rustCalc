@@ -1,3 +1,4 @@
 token.txt
 *.o
 *.elf
+*.swp
