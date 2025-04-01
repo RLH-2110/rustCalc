@@ -20,6 +20,9 @@ pub fn solve(tokens: Vec<Token>) -> i64 {
 	//dbg!(&newtoks);
 	print_tokens(&newtoks);
 
+        
+
+
 	return 0;
 }
 

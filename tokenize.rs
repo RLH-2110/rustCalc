@@ -185,18 +185,19 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 pub fn token_to_string(token: &Token) -> String {
 	match token.id {
 
-
+		
 		TokenType::Operation => {
-			// rust is evil and does not let me use my enum here.
-			match token.value {
-				0 => {return "+".to_string(); }, // Operation::Add
-				1 => {return "-".to_string(); }, // Operation::Sub
-				2 => {return "*".to_string(); }, // Operation::Mul
-				3 => {return "/".to_string(); }, // Operation::Div
+			#[allow(unreachable_patterns)]
+			match unsafe { std::mem::transmute(token.value) } {
+				Operation::Add => {return "+".to_string(); },  
+				Operation::Sub => {return "-".to_string(); },  
+				Operation::Mul => {return "*".to_string(); },  
+				Operation::Div => {return "/".to_string(); }, 
+				#[allow(unreachable_code)]
 				_ => { unimplemented!();	},
 			}
 		},
-
+		
 
 		TokenType::OpenParen  => {return "(".to_string(); },
 		TokenType::CloseParen => {return ")".to_string(); },
