@@ -92,6 +92,12 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 		}
 		if c == ')'{
 			braket_count -= 1;
+
+			if braket_count < 0 { // user entered more ) than possible
+				println!("there are unopnened brakets!");
+				return Err(1);
+			}
+
 			if id != TokenType::CloseParen {
 				if id != TokenType::None{
 					add_token(&mut expression,&id,&mut input);
