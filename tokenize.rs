@@ -31,7 +31,7 @@ pub struct Token {
 pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
 	let mut expression: Vec<Token> = Vec::new();
-	let mut input: String = String::new();
+	let mut input: String = String::with_capacity(8);
 	let mut id = TokenType::None;
 	let mut invalid_token = false; /*for handleing newlines for invalid token error prints*/
 	let mut braket_count = 0;
@@ -191,16 +191,17 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 pub fn token_to_string(token: &Token) -> String {
 	match token.id {
 
-		
+                		
 		TokenType::Operation => {
-			#[allow(unreachable_patterns)]
+	                if token.value > Operation::Div as i64 {
+                                unimplemented!();
+                        }
+
 			match unsafe { std::mem::transmute(token.value) } {
 				Operation::Add => {return "+".to_string(); },  
 				Operation::Sub => {return "-".to_string(); },  
 				Operation::Mul => {return "*".to_string(); },  
 				Operation::Div => {return "/".to_string(); }, 
-				#[allow(unreachable_code)]
-				_ => { unimplemented!();	},
 			}
 		},
 		
