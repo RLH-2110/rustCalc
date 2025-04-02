@@ -37,10 +37,51 @@ pub fn solve(tokens: Vec<Token>) -> i64 {
 	//dbg!(&newtoks);
 	print_tokens(&newtoks);
 
-        
+    
+    println!("calculating!");
+    let mut breaker: u16 = u16::MAX;
+    let toks = newtoks;
 
+    loop{
+    	if toks.len() == 1 {break};
+    	if breaker == 0 {break;}
+    	breaker -= 1;
 
-	return 0;
+    	newtoks = Vec::new();
+    	let mut i = 0;
+    	loop{
+    		if i >= toks.len() {break;}
+    		newtoks.push(toks[i]);
+
+    		if toks[i].id != TokenType::Operation {i+=1;continue;}
+    		if peek(i,-1).is_some && peek(i,-1).unwrap().id != TokenType.Number {i+=1;continue;}
+    		if peek(i, 1).is_some && peek(i, 1).unwrap().id != TokenType.Number {i+=1;continue;}
+    		if peek(i,-2).is_some && peek(i,-2).unwrap().id == TokenType.Operation && peek(i,-2).unwrap().prio > toks[i].prio {i+=1;continue;}
+ 			if peek(i, 2).is_some && peek(i, 2).unwrap().id == TokenType.Operation && peek(i, 2).unwrap().prio > toks[i].prio {i+=1;continue;}
+
+ 			// now we know that we are an operator, that our neibours are numbers, and the adjatent operators have a lower priority
+ 			
+ 			newtoks.pop(); // we saved the operator, but we dont want to save it anymroe.
+ 			newtoks.pop(); // we saved the number, but we dont want to save it anymore.
+
+ 			newtoks.push(functions::calculate(peek(i,-1).unwrap().value),peek(i, 1).unwrap().value, std::mem::transmute(tok[i].value));
+
+ 			i+=1; //the next token is a number, but we already delt with it, so we skip it.
+ 			i+=1; // incement for the loop.
+    	}
+
+    	toks = removeSolvedParentesis(newtoks);
+    }
+
+	dbg!(&newtoks);
+	print_tokens(&newtoks);
+
+    if (toks.len() != 1){
+    	println!("Progamm error: caclulation took too long!");
+    	std::process::exit(2);
+    }
+
+	return toks[0];
 }
 
 
@@ -167,4 +208,14 @@ fn find_double_operators(tokens: &Vec<Token>){
 		}
 	}
 
+}
+
+
+/* removes solved parentesis like turning (5) into 5
+ *
+ * Vec<Token> tokens: the vector where we want to remvoe the parentesis.
+ *
+ */
+fn removeSolvedParentesis(tokens: Vec<Token>) -> Vec<Token> {
+	TODO HERE!
 }

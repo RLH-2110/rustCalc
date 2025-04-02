@@ -14,18 +14,24 @@ pub fn calculate(a: &i64, b: &i64,op: &Operation) -> Token {
 }
 
 fn add(a: &i64, b: &i64) -> i64 {
-	let r = a+b;
-	return r;
+	match a.checked_add(*b) {
+		Some(r) => {return r;},
+		None => {overflow();0},
+	}
 }
 
 fn sub(a: &i64, b: &i64) -> i64 {
-	let r = a-b;
-	return r;
+	match a.checked_sub(*b) {
+		Some(r) => {return r;},
+		None => {overflow();0},
+	}
 }
 
 fn mul(a: &i64, b: &i64) -> i64 {
-	let r = a*b;
-	return r;
+	match a.checked_mul(*b) {
+		Some(r) => {return r;},
+		None => {overflow();0},
+	}
 }
 
 fn div(a: &i64, b: &i64) -> i64 {
@@ -33,7 +39,13 @@ fn div(a: &i64, b: &i64) -> i64 {
 		println!("DIVISION BY ZERO!");
 		std::process::exit(1);
 	}
-	let r = a/b;
-	return r;
+	match a.checked_div(*b) {
+		Some(r) => {return r;},
+		None => {overflow();0},
+	}
 }
 
+fn overflow(){
+	println!("OVERFLOW!");
+	std::process::exit(1);
+}

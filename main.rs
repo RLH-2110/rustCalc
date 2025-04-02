@@ -18,12 +18,6 @@ fn main(){
 	};
 	solver::solve(expression); 
 
-	/* to avoid the unused fucntion error for all of function.rs*/
-	dbg!("test calc: {}",functions::calculate(&std::i64::MAX,&std::i64::MAX,&tokenize::Operation::Mul));
+
 }	
-
-
-
-
-
 
