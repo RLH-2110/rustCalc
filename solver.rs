@@ -5,6 +5,14 @@ use tokenize::Operation;
 use tokenize::print_tokens;
 use std::process;
 
+/* solves an expression and returns the result as an integer
+ *
+ * Vec<Token> tokens: the tokes with hte expression we want to solve
+ *
+ * returns the result as an i64
+ *
+ * exits the progamm on error.
+ */
 pub fn solve(tokens: Vec<Token>) -> i64 {
 
 	if tokens.len() == 0 {
@@ -27,6 +35,15 @@ pub fn solve(tokens: Vec<Token>) -> i64 {
 }
 
 
+/* peeks in any direction in a vector of tokens and either returns that token, or None
+ *
+ * &usize           i:      the current index we are at in the vector
+ * i64              amount: the amount we want to peek ahead or behind
+ * &'a Vec<Token>   vec:    the list of tokens we want to peek into
+ *
+ * returns an option that either contains the token at the positon we peeked,
+ * if we peek out of bounds, then the option is None
+ */
 fn peek<'a>(i: &usize, amount: i64, vec: &'a Vec<Token>) -> Option<&'a Token>{
 
 	let index: i64 = *i as i64;
@@ -37,6 +54,13 @@ fn peek<'a>(i: &usize, amount: i64, vec: &'a Vec<Token>) -> Option<&'a Token>{
 	return Some(&vec[(index+amount) as usize]);
 }
 
+/* removes unary minus operators from a vector of tokens, and replaces the numbers where the
+ * operators where found with negative numbers
+ *
+ * Vec<Token> tokens: the vector of tokens we want to remove the unary minuses.
+ *
+ * returns a vector of tokens with no unary minus operators.
+ */
 fn remove_unary_minus(tokens: Vec<Token>) -> Vec<Token> {
 
 	let mut toks = tokens.clone();
@@ -113,6 +137,10 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Vec<Token> {
 	}
 }
 
+/*find double opeprators (like 1++1) and exists with an error if they ar found.
+ *
+ * &Vec<Token> tokens: the lsit of tokens where we want to check for double operators
+ */
 fn find_double_operators(tokens: &Vec<Token>){
 
 	let mut had_op = false;
@@ -122,7 +150,7 @@ fn find_double_operators(tokens: &Vec<Token>){
 			if had_op {
 				println!("Double operators found!");
 				process::exit(0);
-			}else{
+                        }else{
 				had_op = true;
 			}
 		}else{

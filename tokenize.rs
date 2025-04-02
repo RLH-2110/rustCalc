@@ -1,3 +1,10 @@
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+pub struct Token {
+	pub id: TokenType,
+	pub value: i64, // saves either the value for a number, or the operation for operations. In
+                        // case of operation, the Operation enum is used.
+	pub prio: u8,   // is used to find priorities for operations. normally + has 0 and * has 1
+}
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum TokenType{
@@ -19,18 +26,10 @@ pub enum Operation{
 	Div,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone, Copy)]
-pub struct Token {
-	pub id: TokenType,
-	pub value: i64, // saves either the value for a number, or the operation for operations. In
-                        // case of operation, the Operation enum is used.
-	pub prio: u8,   // is used to find priorities for operations. normally + has 0 and * has 1
-}
-
 
 /* turns a string (without spaces or newlines!) into a list of tokens
  *
- *  text: a string without whitespace
+ *  String text: a string without whitespace
  *
  *  returns: an result with either a vector of tokens or an u8 error code
  *
@@ -169,10 +168,10 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
 /* creates a token with a token type and a string
  *
- * expression: the vector of tokens we want to add the token to
- * id: the TokenType we want to add
- * input: a string with the data for the token, usually a number or an operator, but it can aslo be
- *      a parantesis, though in that case the input is unused.
+ * &mut Vec<Token>  expression: the vector of tokens we want to add the token to
+ * &TokenType       id:         the TokenType we want to add
+ * &mut String      input:      a string with the data for the token, usually a number or an operator, but it can aslo be
+ *                              a parantesis, though in that case the input is unused.
  *
  *
  */
@@ -208,7 +207,13 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 
 
 
-
+/*Turns a token into a string
+ *
+ * &token token: the token to turn into a string
+ *
+ * returns a string representation of the token, which will NOT have a newline at the end.
+ *
+ * */
 pub fn token_to_string(token: &Token) -> String {
 	match token.id {
 
@@ -236,6 +241,11 @@ pub fn token_to_string(token: &Token) -> String {
 	}
 }
 
+/* prints all the tokens in a vector
+ * also prints a newline at the end.
+ *
+ * &Vec<Token> tokens: the vector of tokens to print
+ */
 pub fn print_tokens(tokens: &Vec<Token>){
 	for token in tokens {
 		print!("{}",token_to_string(&token));
