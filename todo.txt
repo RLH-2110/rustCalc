@@ -1,0 +1,2 @@
+set rules for console output and error coddes
+write tests that run the progamm to check for errors
