@@ -22,6 +22,15 @@ pub fn solve(tokens: Vec<Token>) -> i64 {
 
 	// remove unary -
 	let newtoks = remove_unary_minus(tokens);
+        
+        if newtoks[0].id == TokenType::Operation {
+            println!("leading operators at the start of an expression are not valid!");
+	    std::process::exit(1);
+        }
+        if newtoks[newtoks.len()-1].id == TokenType::Operation {
+            println!("trailing operators at the end of an expression are not valid!");
+	    std::process::exit(1);
+        }
 
 	find_double_operators(&newtoks);
 
