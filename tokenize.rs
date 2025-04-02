@@ -17,6 +17,8 @@ pub enum TokenType{
 	Invalid,
 }
 
+
+/* !! ALWAYS UPDATE THE OPERATION ENUM WHEN THE LOOKUP TABLE IN FUNCTIONS.RS IS UPDATED! !! */
 #[repr(i64)]
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum Operation{

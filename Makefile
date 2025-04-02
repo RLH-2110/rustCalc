@@ -11,7 +11,10 @@ $(OUTPUT): $(SOURCES)
 run: all
 	./$(OUTPUT) $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
 
+release: $(SOURCES)
+	rustc $(PRIMARY_SOURCE) -O -o $(OUTPUT)
+
 clean:
 	rm -f $(OUTPUT)
 
-.PHONY: all clean run
+.PHONY: all clean run release
