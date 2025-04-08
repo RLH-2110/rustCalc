@@ -20,5 +20,7 @@ test: release
 
 clean:
 	rm -f $(OUTPUT)
+	rm -f *.pdb
+	rm -f test.elf
 
 .PHONY: all clean run release test
