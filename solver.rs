@@ -20,7 +20,7 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
 
   if tokens.len() == 0 {
     println!("Something went horribly wrong! there are no tokens!");
-    return Err(1);
+    return Err(6);
   }
 
   // remove unary -
@@ -28,20 +28,27 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
     Ok(v) => v,
     Err(e) => {return Err(e);},
   };
-        
+  
+  // detect leading operators
   if newtoks[0].id == TokenType::Operation {
     println!("leading operators at the start of an expression are not valid!");
-    return Err(1);
-  }
-  if newtoks[newtoks.len()-1].id == TokenType::Operation {
-    println!("trailing operators at the end of an expression are not valid!");
-    return Err(1);
+    return Err(8);
   }
 
-  if find_double_operators(&newtoks) { return Err(1); }    
+  // detect trailing operators
+  if newtoks[newtoks.len()-1].id == TokenType::Operation {
+    println!("trailing operators at the end of an expression are not valid!");
+    return Err(9);
+  }
+
+  // check for duplicate operators. something like "1++1"
+  if find_double_operators(&newtoks) { return Err(7); }  
+
+
   let mut breaker: u16 = u16::MAX;
   let mut toks = newtoks;
 
+  // as long as we have more than 1 token   (breaker is used to check for potental infinite loops)
   loop{
     if toks.len() == 1 {break};
     if breaker == 0 {break;}
@@ -49,22 +56,34 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
   
     newtoks = Vec::new();
     let mut i = 0;
+
+    /* for every token*/
     loop{
       if i >= toks.len() {break;}
       newtoks.push(toks[i]);
 
+      // check if its like this: (Operator or nothing) Number Operator Number (Operator or nothing)
+      // where all the operators have the same or priority or the outer operators have a lower priority
+      // if the pattern is not found, go to next itteration
       if toks[i].id != TokenType::Operation {i+=1;continue;}
       if peek(&i,-1,&toks).is_some() && peek(&i,-1,&toks).unwrap().id != TokenType::Number {i+=1;continue;}
       if peek(&i, 1,&toks).is_some() && peek(&i, 1,&toks).unwrap().id != TokenType::Number {i+=1;continue;}
       if peek(&i,-2,&toks).is_some() && peek(&i,-2,&toks).unwrap().id == TokenType::Operation && peek(&i,-2,&toks).unwrap().prio > toks[i].prio {i+=1;continue;}
       if peek(&i, 2,&toks).is_some() && peek(&i, 2,&toks).unwrap().id == TokenType::Operation && peek(&i, 2,&toks).unwrap().prio > toks[i].prio {i+=1;continue;}
   
-      // now we know that we are an operator, that our neibours are numbers, and the adjatent operators have a lower priority
+      // now we know that we are an operator, that our neibours are numbers, and the adjatent operators have the same or a lower priority
        
       let op = newtoks.pop().unwrap(); // we saved the operator, but we dont want to save it anymroe.
       let num = newtoks.pop().unwrap(); // we saved the number, but we dont want to save it anymore.
 
-      unsafe { newtoks.push(calculate(&num.value,&peek(&i, 1,&toks).unwrap().value, &std::mem::transmute(op.value))); }
+      // do the calulation
+      let result: Result<Token,i32>;
+      unsafe { result = calculate(&num.value,&peek(&i, 1,&toks).unwrap().value, &std::mem::transmute(op.value)); }
+      
+      match result{
+        Ok(val) => {newtoks.push(val);},
+        Err(e) => {return Err(e)},
+      }
 
       i+=1; //the next token is a number, but we already delt with it, so we skip it.
       i+=1; // incement for the loop.
@@ -74,12 +93,12 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
     toks = remove_solved_parentesis(newtoks);
   }
 
-  //dbg!(&toks);
-  //print_tokens(&toks);
+
+
 
   if toks.len() != 1{
     println!("Progamm error: caclulation took too long!");
-    return Err(2);
+    return Err(11);
   }
 
   return Ok(toks[0].value);
@@ -166,7 +185,7 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Result<Vec<Token>,i32> {
             _ => 
               {  
                 println!("MUTLIPLE OPERATIONS AFTER EACH OTHER WITH NO NUMBER!");
-                return Err(1);
+                return Err(7);
               },
           }
 
