@@ -38,6 +38,7 @@ pub enum Operation{
  *  error codes:
  *      0: invalid token
  *      1: a parentesis was wither opened and not closed, or closed and not opened.
+ *      2: overflow
  */
 pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
@@ -54,7 +55,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
       if id != TokenType::Number{
         if id != TokenType::None{
-          add_token(&mut expression,&id,&mut input);
+          if add_token(&mut expression,&id,&mut input) {return Err(2);}
         }
         
         input.push(c);
@@ -71,14 +72,14 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
       if id != TokenType::Operation{
         if id != TokenType::None{
-          add_token(&mut expression,&id,&mut input);
+          if add_token(&mut expression,&id,&mut input) {return Err(2);}
         }
 
         input.push(c);
         id = TokenType::Operation;
         continue;
       }
-      add_token(&mut expression,&id,&mut input);
+      if add_token(&mut expression,&id,&mut input) {return Err(2);}
       input.push(c);
       continue;
     
@@ -89,14 +90,14 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
       braket_count += 1;
       if id != TokenType::OpenParen  {
         if id != TokenType::None{
-          add_token(&mut expression,&id,&mut input);
+          if add_token(&mut expression,&id,&mut input) {return Err(2);}
         }
 
         input.push(c);
         id = TokenType::OpenParen;
         continue;
       }
-      add_token(&mut expression,&id,&mut input);
+      if add_token(&mut expression,&id,&mut input) {return Err(2);}
       input.push(c);
       continue;
     
@@ -111,14 +112,14 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
       if id != TokenType::CloseParen {
         if id != TokenType::None{
-          add_token(&mut expression,&id,&mut input);
+          if add_token(&mut expression,&id,&mut input) {return Err(2);}
         }
 
         input.push(c);
         id = TokenType::CloseParen;
         continue;
       }
-      add_token(&mut expression,&id,&mut input);
+      if add_token(&mut expression,&id,&mut input) {return Err(2);}
       input.push(c);
       continue;
     
@@ -136,7 +137,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
         print!("Unknown Token: ");
 
         if id != TokenType::None{
-          add_token(&mut expression,&id,&mut input);
+          if add_token(&mut expression,&id,&mut input) {return Err(2);}
         }
 
         print!("{c}");
@@ -152,7 +153,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
     }
 
   }
-  add_token(&mut expression,&id,&mut input);
+  if add_token(&mut expression,&id,&mut input) {return Err(2);}
   if invalid_token { println!(""); return Err(0); }
 
   if braket_count != 0{
@@ -178,9 +179,9 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
  * &mut String      input:      a string with the data for the token, usually a number or an operator, but it can aslo be
  *                              a parantesis, though in that case the input is unused.
  *
- *
+ * returns false if no error occured, returns true if an error occured
  */
-pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String){
+pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String) -> bool{
 
 
   match *id{
@@ -198,7 +199,11 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
     },
 
     TokenType::Number => {
-      expression.push(Token {id: *id, value: input.parse::<u32>().expect("Token of Type number should contain a value") as i64, prio: 0});
+      let val = match input.parse::<u32>(){
+        Ok(val) => val,
+        Err(_) => { println!("Numbers must be nummbers between 0 and 4294967295!"); return true;},
+      };
+      expression.push(Token {id: *id, value: val as i64, prio: 0});
     },
 
     _ => {
@@ -208,6 +213,7 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 
 
   input.clear();
+  return false;
 }
 
 
