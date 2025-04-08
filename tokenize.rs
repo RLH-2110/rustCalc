@@ -124,6 +124,9 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
     
     }
 
+    if c == ' '{ // ignore whitespace
+      continue;
+    }
 
     // if other
     {

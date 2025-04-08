@@ -128,6 +128,7 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Result<Vec<Token>,i32> {
         break;
       }
 
+      // if we are we an operator
       if toks[i].id == TokenType::Operation && toks[i].value == Operation::Sub as i64 {
         let ntok = peek(&i,1,&toks);
 
@@ -137,8 +138,8 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Result<Vec<Token>,i32> {
 
         let ptok = peek(&i,-1,&toks);
 
-        if ptok.is_none() || ptok.unwrap().id == TokenType::Operation || ntok.unwrap().id == TokenType::OpenParen {
-
+        // if previous token is an operator or open Parentesis, or there is no previous token, and the next token is not an open parentesis
+        if ptok.is_none() || ptok.unwrap().id == TokenType::Operation || ptok.unwrap().id == TokenType::OpenParen || ntok.unwrap().id == TokenType::OpenParen {
           found_unary = true;
           match ntok.unwrap().id {
             TokenType::Number => 

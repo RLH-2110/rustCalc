@@ -78,10 +78,10 @@ fn main() {
     run_test(18,"-2(-5)",false,10);
 
     run_test(19,"4294967296",true,0); // bigger than u32!
-    run_test(20,"4294967295+4294967295 ",true,8589934590);
-    run_test(21,"0-4294967295 ",true,-4294967295);
-    run_test(22,"4294967295*4294967295 ",false,0); // overflow
-    run_test(23,"4294967295/1 ",true,4294967295);
+    run_test(20,"4294967295+4294967295",false,8589934590);
+    run_test(21,"0-4294967295 ",false,-4294967295);
+    run_test(22,"4294967295*4294967295 ",true,0); // overflow
+    run_test(23,"4294967295/1 ",false,4294967295);
     
 
     println!("add more tests!");
