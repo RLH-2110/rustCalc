@@ -11,7 +11,14 @@ $(OUTPUT): $(SOURCES)
 run: all
 	./$(OUTPUT) $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
 
+release: $(SOURCES)
+	rustc $(PRIMARY_SOURCE) -O -o $(OUTPUT)
+
+test: release
+	rustc test.rs -o test.elf
+	./test.elf
+
 clean:
 	rm -f $(OUTPUT)
 
-.PHONY: all clean run
+.PHONY: all clean run release test
