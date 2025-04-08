@@ -33,14 +33,10 @@ pub enum Operation{
  *
  *  String text: a string without whitespace
  *
- *  returns: an result with either a vector of tokens or an u8 error code
+ *  returns: an result with either a vector of tokens or an u32 exit code for the progamm
  *
- *  error codes:
- *      0: invalid token
- *      1: a parentesis was wither opened and not closed, or closed and not opened.
- *      2: overflow
  */
-pub fn parse(text: String) -> Result<Vec<Token>,u8>{
+pub fn parse(text: String) -> Result<Vec<Token>,i32>{
 
   let mut expression: Vec<Token> = Vec::new();
   let mut input: String = String::with_capacity(8);
@@ -55,7 +51,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
       if id != TokenType::Number{
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(2);}
+          if add_token(&mut expression,&id,&mut input) {return Err(4);}
         }
         
         input.push(c);
@@ -72,14 +68,14 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
       if id != TokenType::Operation{
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(2);}
+          if add_token(&mut expression,&id,&mut input) {return Err(4);}
         }
 
         input.push(c);
         id = TokenType::Operation;
         continue;
       }
-      if add_token(&mut expression,&id,&mut input) {return Err(2);}
+      if add_token(&mut expression,&id,&mut input) {return Err(4);}
       input.push(c);
       continue;
     
@@ -90,14 +86,14 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
       braket_count += 1;
       if id != TokenType::OpenParen  {
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(2);}
+          if add_token(&mut expression,&id,&mut input) {return Err(4);}
         }
 
         input.push(c);
         id = TokenType::OpenParen;
         continue;
       }
-      if add_token(&mut expression,&id,&mut input) {return Err(2);}
+      if add_token(&mut expression,&id,&mut input) {return Err(4);}
       input.push(c);
       continue;
     
@@ -107,19 +103,19 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
       if braket_count < 0 { // user entered more ) than possible
         println!("there are unopnened brakets!");
-        return Err(1);
+        return Err(4);
       }
 
       if id != TokenType::CloseParen {
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(2);}
+          if add_token(&mut expression,&id,&mut input) {return Err(4);}
         }
 
         input.push(c);
         id = TokenType::CloseParen;
         continue;
       }
-      if add_token(&mut expression,&id,&mut input) {return Err(2);}
+      if add_token(&mut expression,&id,&mut input) {return Err(4);}
       input.push(c);
       continue;
     
@@ -137,7 +133,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
         print!("Unknown Token: ");
 
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(2);}
+          if add_token(&mut expression,&id,&mut input) {return Err(4);}
         }
 
         print!("{c}");
@@ -153,8 +149,8 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
     }
 
   }
-  if add_token(&mut expression,&id,&mut input) {return Err(2);}
-  if invalid_token { println!(""); return Err(0); }
+  if add_token(&mut expression,&id,&mut input) {return Err(4);}
+  if invalid_token { println!(""); return Err(2); }
 
   if braket_count != 0{
     if braket_count > 0{
@@ -164,7 +160,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
       // I left it in in case I remove it. "doppelt hält besser."
       println!("there are {} unopnened brakets!",0-braket_count);
     }
-    return Err(1);
+    return Err(5);
   }
 
   return Ok(expression);

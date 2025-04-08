@@ -3,49 +3,61 @@ use tokenize::TokenType;
 use tokenize::Operation;
 
 /* !! ALWAYS UPDATE THE LOOKUP TABLE WHEN THE OPERATION ENUM IN TOKENIZE.RS IS UPDATED! !! */
-type MathOp = fn(&i64, &i64) -> i64;
+type MathOp = fn(&i64, &i64) -> Result<i64,i32>;
 const OP_LOOKUP: [MathOp;4] = [add,sub,mul,div];
 
-pub fn calculate(a: &i64, b: &i64,op: &Operation) -> Token {
-  let result: i64;
+pub fn calculate(a: &i64, b: &i64,op: &Operation) -> Result<Token,i32> {
+  let result: Result<i64,i32>;
   unsafe {result = OP_LOOKUP[std::mem::transmute::<Operation,usize>(*op)](a,b);}
-
-  return Token {id: TokenType::Number, value: result, prio: 0};
-}
-
-fn add(a: &i64, b: &i64) -> i64 {
-  match a.checked_add(*b) {
-    Some(r) => {return r;},
-    None => {overflow();0},
+  
+  if result.is_err() {
+    return Err(result.unwrap_err());
   }
+
+  return Ok(Token {id: TokenType::Number, value: result.unwrap(), prio: 0});
 }
 
-fn sub(a: &i64, b: &i64) -> i64 {
-  match a.checked_sub(*b) {
-    Some(r) => {return r;},
-    None => {overflow();0},
+fn add(a: &i64, b: &i64) -> Result<i64,i32> {
+
+  let ret = a.checked_add(*b);
+  if ret.is_none(){
+    println!("OVERFLOW!");
+    return Err(3);
   }
+  return Ok(ret.unwrap());
 }
 
-fn mul(a: &i64, b: &i64) -> i64 {
-  match a.checked_mul(*b) {
-    Some(r) => {return r;},
-    None => {overflow();0},
+fn sub(a: &i64, b: &i64) -> Result<i64,i32>  {
+
+  let ret = a.checked_sub(*b);
+  if ret.is_none(){
+    println!("OVERFLOW!");
+    return Err(3);
   }
+  return Ok(ret.unwrap());
 }
 
-fn div(a: &i64, b: &i64) -> i64 {
+fn mul(a: &i64, b: &i64) -> Result<i64,i32>  {
+
+  let ret = a.checked_mul(*b);
+  if ret.is_none(){
+    println!("OVERFLOW!");
+    return Err(3);
+  }
+  return Ok(ret.unwrap());
+}
+
+fn div(a: &i64, b: &i64) -> Result<i64,i32>  {
+
   if *b == 0{
     println!("DIVISION BY ZERO!");
-    std::process::exit(1);
+    return Err(10);
   }
-  match a.checked_div(*b) {
-    Some(r) => {return r;},
-    None => {overflow();0},
-  }
-}
 
-fn overflow(){
-  println!("OVERFLOW!");
-  std::process::exit(1);
+  let ret = a.checked_div(*b);
+  if ret.is_none(){
+    println!("OVERFLOW!");
+    return Err(3);
+  }
+  return Ok(ret.unwrap());
 }

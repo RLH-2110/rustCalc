@@ -20,7 +20,7 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
 
   if tokens.len() == 0 {
     println!("Something went horribly wrong! there are no tokens!");
-    return Err(1);
+    return Err(6);
   }
 
   // remove unary -
@@ -31,14 +31,14 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
         
   if newtoks[0].id == TokenType::Operation {
     println!("leading operators at the start of an expression are not valid!");
-    return Err(1);
+    return Err(8);
   }
   if newtoks[newtoks.len()-1].id == TokenType::Operation {
     println!("trailing operators at the end of an expression are not valid!");
-    return Err(1);
+    return Err(9);
   }
 
-  if find_double_operators(&newtoks) { return Err(1); }    
+  if find_double_operators(&newtoks) { return Err(7); }    
   let mut breaker: u16 = u16::MAX;
   let mut toks = newtoks;
 
@@ -64,7 +64,13 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
       let op = newtoks.pop().unwrap(); // we saved the operator, but we dont want to save it anymroe.
       let num = newtoks.pop().unwrap(); // we saved the number, but we dont want to save it anymore.
 
-      unsafe { newtoks.push(calculate(&num.value,&peek(&i, 1,&toks).unwrap().value, &std::mem::transmute(op.value))); }
+      let result: Result<Token,i32>;
+      unsafe { result = calculate(&num.value,&peek(&i, 1,&toks).unwrap().value, &std::mem::transmute(op.value)); }
+      
+      match result{
+        Ok(val) => {newtoks.push(val);},
+        Err(e) => {return Err(e)},
+      }
 
       i+=1; //the next token is a number, but we already delt with it, so we skip it.
       i+=1; // incement for the loop.
@@ -79,7 +85,7 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
 
   if toks.len() != 1{
     println!("Progamm error: caclulation took too long!");
-    return Err(2);
+    return Err(11);
   }
 
   return Ok(toks[0].value);
@@ -166,7 +172,7 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Result<Vec<Token>,i32> {
             _ => 
               {  
                 println!("MUTLIPLE OPERATIONS AFTER EACH OTHER WITH NO NUMBER!");
-                return Err(1);
+                return Err(7);
               },
           }
 
