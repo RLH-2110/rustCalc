@@ -1,20 +1,20 @@
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Token {
-	pub id: TokenType,
-	pub value: i64, // saves either the value for a number, or the operation for operations. In
+  pub id: TokenType,
+  pub value: i64, // saves either the value for a number, or the operation for operations. In
                         // case of operation, the Operation enum is used.
-	pub prio: u8,   // is used to find priorities for operations. normally + has 0 and * has 1
+  pub prio: u8,   // is used to find priorities for operations. normally + has 0 and * has 1
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum TokenType{
-	Number,
-	Operation,
-	OpenParen,
-	CloseParen,
+  Number,
+  Operation,
+  OpenParen,
+  CloseParen,
 
-	None, /* used when saving what the previous token is, and there is no previous token*/
-	Invalid,
+  None, /* used when saving what the previous token is, and there is no previous token*/
+  Invalid,
 }
 
 
@@ -22,10 +22,10 @@ pub enum TokenType{
 #[repr(i64)]
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum Operation{
-	Add,
-	Sub,
-	Mul,
-	Div,
+  Add,
+  Sub,
+  Mul,
+  Div,
 }
 
 
@@ -41,129 +41,129 @@ pub enum Operation{
  */
 pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 
-	let mut expression: Vec<Token> = Vec::new();
-	let mut input: String = String::with_capacity(8);
-	let mut id = TokenType::None;
-	let mut invalid_token = false; /*for handleing newlines for invalid token error prints*/
-	let mut braket_count = 0;
+  let mut expression: Vec<Token> = Vec::new();
+  let mut input: String = String::with_capacity(8);
+  let mut id = TokenType::None;
+  let mut invalid_token = false; /*for handleing newlines for invalid token error prints*/
+  let mut braket_count = 0;
 
-	for c in text.chars(){
+  for c in text.chars(){
 
-		// if number
-		if c.is_digit(10){
+    // if number
+    if c.is_digit(10){
 
-			if id != TokenType::Number{
-				if id != TokenType::None{
-					add_token(&mut expression,&id,&mut input);
-				}
-				
-				input.push(c);
-				id = TokenType::Number;
-				continue;
-			}
-			input.push(c);
-			continue;
-		}
-
-
-		// if op
-		if "+-*/".contains(c){
-
-			if id != TokenType::Operation{
-				if id != TokenType::None{
-					add_token(&mut expression,&id,&mut input);
-				}
-
-				input.push(c);
-				id = TokenType::Operation;
-				continue;
-			}
-			add_token(&mut expression,&id,&mut input);
-			input.push(c);
-			continue;
-		
-		}
-
-		// if braket
-		if c == '('{
-			braket_count += 1;
-			if id != TokenType::OpenParen  {
-				if id != TokenType::None{
-					add_token(&mut expression,&id,&mut input);
-				}
-
-				input.push(c);
-				id = TokenType::OpenParen;
-				continue;
-			}
-			add_token(&mut expression,&id,&mut input);
-			input.push(c);
-			continue;
-		
-		}
-		if c == ')'{
-			braket_count -= 1;
-
-			if braket_count < 0 { // user entered more ) than possible
-				println!("there are unopnened brakets!");
-				return Err(1);
-			}
-
-			if id != TokenType::CloseParen {
-				if id != TokenType::None{
-					add_token(&mut expression,&id,&mut input);
-				}
-
-				input.push(c);
-				id = TokenType::CloseParen;
-				continue;
-			}
-			add_token(&mut expression,&id,&mut input);
-			input.push(c);
-			continue;
-		
-		}
+      if id != TokenType::Number{
+        if id != TokenType::None{
+          add_token(&mut expression,&id,&mut input);
+        }
+        
+        input.push(c);
+        id = TokenType::Number;
+        continue;
+      }
+      input.push(c);
+      continue;
+    }
 
 
-		// if other
-		{
-			
-			if id != TokenType::Invalid{
-				if invalid_token { println!(""); } /*new invalid token error message*/
-				print!("Unknown Token: ");
+    // if op
+    if "+-*/".contains(c){
 
-				if id != TokenType::None{
-					add_token(&mut expression,&id,&mut input);
-				}
+      if id != TokenType::Operation{
+        if id != TokenType::None{
+          add_token(&mut expression,&id,&mut input);
+        }
 
-				print!("{c}");
-				input.push(c);
-				id = TokenType::Invalid;
+        input.push(c);
+        id = TokenType::Operation;
+        continue;
+      }
+      add_token(&mut expression,&id,&mut input);
+      input.push(c);
+      continue;
+    
+    }
 
-				invalid_token = true;
-				continue;
-			}
-			input.push(c);
-			print!("{c}");
-			continue;
-		}
+    // if braket
+    if c == '('{
+      braket_count += 1;
+      if id != TokenType::OpenParen  {
+        if id != TokenType::None{
+          add_token(&mut expression,&id,&mut input);
+        }
 
-	}
-	add_token(&mut expression,&id,&mut input);
-	if invalid_token { println!(""); return Err(0); }
+        input.push(c);
+        id = TokenType::OpenParen;
+        continue;
+      }
+      add_token(&mut expression,&id,&mut input);
+      input.push(c);
+      continue;
+    
+    }
+    if c == ')'{
+      braket_count -= 1;
 
-	if braket_count != 0{
-		if braket_count > 0{
-			println!("there are {braket_count} unclosed brakets!");
-		}else{
-                        // will never execute, since we check for this when we parse ')'
-                        // I left it in in case I remove it. "doppelt hält besser."
-			println!("there are {} unopnened brakets!",0-braket_count);
-		}
-		return Err(1);
-	}
+      if braket_count < 0 { // user entered more ) than possible
+        println!("there are unopnened brakets!");
+        return Err(1);
+      }
 
-	return Ok(expression);
+      if id != TokenType::CloseParen {
+        if id != TokenType::None{
+          add_token(&mut expression,&id,&mut input);
+        }
+
+        input.push(c);
+        id = TokenType::CloseParen;
+        continue;
+      }
+      add_token(&mut expression,&id,&mut input);
+      input.push(c);
+      continue;
+    
+    }
+
+
+    // if other
+    {
+      
+      if id != TokenType::Invalid{
+        if invalid_token { println!(""); } /*new invalid token error message*/
+        print!("Unknown Token: ");
+
+        if id != TokenType::None{
+          add_token(&mut expression,&id,&mut input);
+        }
+
+        print!("{c}");
+        input.push(c);
+        id = TokenType::Invalid;
+
+        invalid_token = true;
+        continue;
+      }
+      input.push(c);
+      print!("{c}");
+      continue;
+    }
+
+  }
+  add_token(&mut expression,&id,&mut input);
+  if invalid_token { println!(""); return Err(0); }
+
+  if braket_count != 0{
+    if braket_count > 0{
+      println!("there are {braket_count} unclosed brakets!");
+    }else{
+      // will never execute, since we check for this when we parse ')'
+      // I left it in in case I remove it. "doppelt hält besser."
+      println!("there are {} unopnened brakets!",0-braket_count);
+    }
+    return Err(1);
+  }
+
+  return Ok(expression);
 }
 
 
@@ -180,31 +180,31 @@ pub fn parse(text: String) -> Result<Vec<Token>,u8>{
 pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String){
 
 
-	match *id{
-		TokenType::Operation => {
-			
-			let (val,pri) = match input.as_str(){
-				"+" => (Operation::Add as i64,0),
-				"-" => (Operation::Sub as i64,0),
-				"*" => (Operation::Mul as i64,1),
-				"/" => (Operation::Div as i64,1),
-				_   => (Operation::Add as i64,0),
-			};
+  match *id{
+    TokenType::Operation => {
+      
+      let (val,pri) = match input.as_str(){
+        "+" => (Operation::Add as i64,0),
+        "-" => (Operation::Sub as i64,0),
+        "*" => (Operation::Mul as i64,1),
+        "/" => (Operation::Div as i64,1),
+        _   => (Operation::Add as i64,0),
+      };
 
-			expression.push(Token {id: *id, value: val, prio: pri});
-		},
+      expression.push(Token {id: *id, value: val, prio: pri});
+    },
 
-		TokenType::Number => {
-			expression.push(Token {id: *id, value: input.parse::<u32>().expect("Token of Type number should contain a value") as i64, prio: 0});
-		},
+    TokenType::Number => {
+      expression.push(Token {id: *id, value: input.parse::<u32>().expect("Token of Type number should contain a value") as i64, prio: 0});
+    },
 
-		_ => {
-			expression.push(Token {id: *id, value: 0, prio: 0});
-		}
-	}
+    _ => {
+      expression.push(Token {id: *id, value: 0, prio: 0});
+    }
+  }
 
 
-	input.clear();
+  input.clear();
 }
 
 
@@ -216,31 +216,31 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
  * returns a string representation of the token, which will NOT have a newline at the end.
  *
  * */
+#[allow(dead_code)]
 pub fn token_to_string(token: &Token) -> String {
-	match token.id {
+  match token.id {
 
-                		
-		TokenType::Operation => {
-	                if token.value > Operation::Div as i64 {
-                                unimplemented!();
-                        }
+      TokenType::Operation => {
+        if token.value > Operation::Div as i64 {
+        unimplemented!();
+      }
+  
+      match unsafe { std::mem::transmute(token.value) } {
+        Operation::Add => {return "+".to_string(); },  
+        Operation::Sub => {return "-".to_string(); },  
+        Operation::Mul => {return "*".to_string(); },  
+        Operation::Div => {return "/".to_string(); }, 
+      }
+    },
+    
 
-			match unsafe { std::mem::transmute(token.value) } {
-				Operation::Add => {return "+".to_string(); },  
-				Operation::Sub => {return "-".to_string(); },  
-				Operation::Mul => {return "*".to_string(); },  
-				Operation::Div => {return "/".to_string(); }, 
-			}
-		},
-		
+    TokenType::OpenParen  => {return "(".to_string(); },
+    TokenType::CloseParen => {return ")".to_string(); },
+    
+    TokenType::Number => {return token.value.to_string(); },
 
-		TokenType::OpenParen  => {return "(".to_string(); },
-		TokenType::CloseParen => {return ")".to_string(); },
-		
-		TokenType::Number => {return token.value.to_string(); },
-
-		_ => {	unimplemented!();	}
-	}
+    _ => {  unimplemented!();  }
+  }
 }
 
 /* prints all the tokens in a vector
@@ -248,9 +248,10 @@ pub fn token_to_string(token: &Token) -> String {
  *
  * &Vec<Token> tokens: the vector of tokens to print
  */
+ #[allow(dead_code)]
 pub fn print_tokens(tokens: &Vec<Token>){
-	for token in tokens {
-		print!("{}",token_to_string(&token));
-	}
-	print!("\n");
+  for token in tokens {
+    print!("{}",token_to_string(&token));
+  }
+  print!("\n");
 }
