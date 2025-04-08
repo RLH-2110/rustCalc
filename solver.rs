@@ -221,6 +221,35 @@ fn find_double_operators(tokens: &Vec<Token>) -> bool{
  *
  */
 fn remove_solved_parentesis(tokens: Vec<Token>) -> Vec<Token> {
-  //TODO HERE!
-  return tokens;
+    let mut new_tokens: Vec<Token> = Vec::new();
+    
+    let mut i = 0;
+
+    loop{
+      if i >= tokens.len() {break;}
+      new_tokens.push(tokens[i]);
+
+      if tokens[i].id != TokenType::Number {i+=1;continue;}
+      if peek(&i,-1,&tokens).is_some() && peek(&i,-1,&tokens).unwrap().id != TokenType::OpenParen {i+=1;continue;}
+      if peek(&i, 1,&tokens).is_some() && peek(&i, 1,&tokens).unwrap().id != TokenType::CloseParen {i+=1;continue;}
+  
+      // now we know that we are an Number, that our neibours are parentesis
+     
+      let num = new_tokens.pop().unwrap(); // we saved the number, but we need to pop another value
+                                          // before it
+      new_tokens.pop(); // we saved the parantesis in newTokens before, but we dont want to save it anymroe.
+        
+      // check if we need to add a multiplication
+
+      if peek(&i,-2,&tokens).is_some() && peek(&i,-2,&tokens).unwrap().id == TokenType::Number {
+        new_tokens.push(Token {id: TokenType::Operation, value: Operation::Mul as i64, prio: 1});
+      }
+
+      new_tokens.push(num); // put the number back
+      
+      i+=1; //the next token is a braket, but we already delt with it, so we skip it.
+      i+=1; // incement for the loop.
+    }
+
+    return new_tokens;
 }

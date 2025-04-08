@@ -14,7 +14,11 @@ run: all
 release: $(SOURCES)
 	rustc $(PRIMARY_SOURCE) -O -o $(OUTPUT)
 
+test: release
+	rustc test.rs -o test.elf
+	./test.elf
+
 clean:
 	rm -f $(OUTPUT)
 
-.PHONY: all clean run release
+.PHONY: all clean run release test

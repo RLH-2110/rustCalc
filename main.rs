@@ -14,7 +14,7 @@ fn main(){
   let args: String = argv[1..].join("");
   let expression = match tokenize::parse(args){
     Ok(e) => e,
-    Err(_) => {return;},
+    Err(_) => {std::process::exit(100)},
   };
   let result = match solver::solve(expression){ 
     Ok(n) => n,    
