@@ -51,7 +51,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
 
       if id != TokenType::Number{
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(4);}
+          if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
         }
         
         input.push(c);
@@ -68,14 +68,14 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
 
       if id != TokenType::Operation{
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(4);}
+          if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
         }
 
         input.push(c);
         id = TokenType::Operation;
         continue;
       }
-      if add_token(&mut expression,&id,&mut input) {return Err(4);}
+      if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
       input.push(c);
       continue;
     
@@ -86,14 +86,14 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
       braket_count += 1;
       if id != TokenType::OpenParen  {
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(4);}
+          if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
         }
 
         input.push(c);
         id = TokenType::OpenParen;
         continue;
       }
-      if add_token(&mut expression,&id,&mut input) {return Err(4);}
+      if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
       input.push(c);
       continue;
     
@@ -103,19 +103,19 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
 
       if braket_count < 0 { // user entered more ) than possible
         println!("there are unopnened brakets!");
-        return Err(4);
+        return Err(crate::EXIT_PARENTESIS_ERR);
       }
 
       if id != TokenType::CloseParen {
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(4);}
+          if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
         }
 
         input.push(c);
         id = TokenType::CloseParen;
         continue;
       }
-      if add_token(&mut expression,&id,&mut input) {return Err(4);}
+      if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
       input.push(c);
       continue;
     
@@ -133,7 +133,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
         print!("Unknown Token: ");
 
         if id != TokenType::None{
-          if add_token(&mut expression,&id,&mut input) {return Err(4);}
+          if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
         }
 
         print!("{c}");
@@ -149,8 +149,8 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
     }
 
   }
-  if add_token(&mut expression,&id,&mut input) {return Err(4);}
-  if invalid_token { println!(""); return Err(2); }
+  if add_token(&mut expression,&id,&mut input) {return Err(crate::EXIT_INVAL_NUM);}
+  if invalid_token { println!(""); return Err(crate::EXIT_INVAL_TOK); }
 
   if braket_count != 0{
     if braket_count > 0{
@@ -160,7 +160,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
       // I left it in in case I remove it. "doppelt hält besser."
       println!("there are {} unopnened brakets!",0-braket_count);
     }
-    return Err(5);
+    return Err(crate::EXIT_PARENTESIS_ERR);
   }
 
   return Ok(expression);
