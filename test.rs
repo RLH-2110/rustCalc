@@ -84,6 +84,10 @@ fn main() {
     run_test(23,"4294967295*4294967295 ",true,0); // overflow
     run_test(24,"4294967295/1 ",false,4294967295);
     
+    run_test(25,"9(+5)",true,0); // make sure it fails correctly
+    run_test(26,"9(*5)",true,0);
+    run_test(27,"1(2)(3),false,6);
+
 
     println!("add more tests!");
 
