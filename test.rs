@@ -86,8 +86,15 @@ fn main() {
     
     run_test(25,"9(+5)",true,0); // make sure it fails correctly
     run_test(26,"9(*5)",true,0);
-    run_test(27,"1(2)(3),false,6);
+    run_test(27,"1(2)(3)",false,6);
+    run_test(28,"()",true,0); 
+    run_test(29,"2*(5)",false,10);
+    run_test(30,"2*(5+ *7)",true,0);
 
+    run_test(31,"9(2))",true,0);
+    run_test(32,"9((2)",true,0);
+    run_test(33,"1+3*4/2",false,7);
+    run_test(34,"2(5*(1+1))",false,20);
 
     println!("add more tests!");
 
