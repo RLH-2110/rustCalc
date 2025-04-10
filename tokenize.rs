@@ -1,3 +1,7 @@
+use conversion::op_from_num;
+use conversion::fp_to_string;
+use conversion::string_to_fp;
+
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Token {
   pub id: TokenType,
@@ -47,7 +51,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
   for c in text.chars(){
 
     // if number
-    if c.is_digit(10){
+    if c.is_digit(10) || c == '.'{
 
       if id != TokenType::Number{
         if id != TokenType::None{
@@ -81,7 +85,7 @@ pub fn parse(text: String) -> Result<Vec<Token>,i32>{
     
     }
 
-    // if braket
+    // if parentheses 
     if c == '('{
       braket_count += 1;
       if id != TokenType::OpenParen  {
@@ -195,9 +199,26 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
     },
 
     TokenType::Number => {
-      let val = match input.parse::<u32>(){
+
+      let dots = count_dots(&input);
+      unsafe {
+        if crate::FIXED_POINT == 0 && dots != 0{
+          println!("You can not use fixed point numbers without activating fixed point numbers!");
+          return true;
+        }
+      }
+      if dots > 1{
+        println!("You can not have more than 1 decimal points in a number!");
+        return true;
+      }
+      if input == "." || input.chars().last().unwrap() == '.'{
+        println!("Invalid use of decimal, you can have numbers like 0.5 or .5 any other use of the decimal point is invalid!");
+        return true;
+      }
+
+      let val = match string_to_fp(&input){
         Ok(val) => val,
-        Err(_) => { println!("Numbers must be nummbers between 0 and 4294967295!"); return true;},
+        Err(_) => { return true;},
       };
       expression.push(Token {id: *id, value: val as i64, prio: 0});
     },
@@ -213,16 +234,26 @@ pub fn add_token(expression: &mut Vec<Token>, id: &TokenType, input: &mut String
 }
 
 
+fn count_dots(s: &String) -> u64 {
+  let mut n = 0;
+    for c in s.chars() {
+        if c == '.' {
+            n += 1;
+        }
+    }
+  return n;
+}
+
 
 /*Turns a token into a string
  *
  * &token token: the token to turn into a string
  *
- * returns a string representation of the token, which will NOT have a newline at the end.
- *
+ * returns a result with string representation of the token, which will NOT have a newline at the end.
+ * the error is an exit code for main
  * */
 #[allow(dead_code)]
-pub fn token_to_string(token: &Token) -> String {
+pub fn token_to_string(token: &Token) -> Result<String,i32> {
   match token.id {
 
       TokenType::Operation => {
@@ -230,19 +261,19 @@ pub fn token_to_string(token: &Token) -> String {
         unimplemented!();
       }
   
-      match unsafe { std::mem::transmute(token.value) } {
-        Operation::Add => {return "+".to_string(); },  
-        Operation::Sub => {return "-".to_string(); },  
-        Operation::Mul => {return "*".to_string(); },  
-        Operation::Div => {return "/".to_string(); }, 
+      match op_from_num(token.value)? {
+        Operation::Add => {return Ok("+".to_string()); },  
+        Operation::Sub => {return Ok("-".to_string()); },  
+        Operation::Mul => {return Ok("*".to_string()); },  
+        Operation::Div => {return Ok("/".to_string()); }, 
       }
     },
     
 
-    TokenType::OpenParen  => {return "(".to_string(); },
-    TokenType::CloseParen => {return ")".to_string(); },
+    TokenType::OpenParen  => {return Ok("(".to_string()); },
+    TokenType::CloseParen => {return Ok(")".to_string()); },
     
-    TokenType::Number => {return token.value.to_string(); },
+    TokenType::Number => {return Ok(fp_to_string(token.value)); },
 
     _ => {  unimplemented!();  }
   }
@@ -252,11 +283,12 @@ pub fn token_to_string(token: &Token) -> String {
  * also prints a newline at the end.
  *
  * &Vec<Token> tokens: the vector of tokens to print
+ * will crash if there is an invalid token (since this is only used for debbuging, its fine)
  */
  #[allow(dead_code)]
 pub fn print_tokens(tokens: &Vec<Token>){
   for token in tokens {
-    print!("{}",token_to_string(&token));
+    print!("{}",token_to_string(&token).unwrap());
   }
   print!("\n");
 }

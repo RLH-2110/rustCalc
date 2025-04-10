@@ -14,7 +14,7 @@ run: all
 release: $(SOURCES)
 	rustc $(PRIMARY_SOURCE) -O -o $(OUTPUT)
 
-test: release
+test: all
 	rustc test.rs -o test.elf
 	./test.elf
 
