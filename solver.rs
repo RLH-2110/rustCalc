@@ -4,7 +4,6 @@ use tokenize::TokenType;
 use tokenize::Operation;
 use functions::calculate;
 
-
 #[allow(unused_imports)]
 use tokenize::print_tokens;
 
@@ -48,7 +47,7 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
   if has_other_unary(&newtoks) { println!("Only Minus is allowed as unary Operator!"); return Err(crate::EXIT_INVAL_UNARY);}
 
   let mut breaker: u16 = u16::MAX;
-  let mut toks = newtoks;
+  let mut toks = remove_solved_parentesis(newtoks);
 
   // as long as we have more than 1 token   (breaker is used to check for potental infinite loops)
   loop{
@@ -263,12 +262,13 @@ fn remove_solved_parentesis(tokens: Vec<Token>) -> Vec<Token> {
 
     loop{
       if i >= tokens.len() {break;}
+      
       new_tokens.push(tokens[i]);
 
       if tokens[i].id != TokenType::Number {i+=1;continue;}
       if peek(&i,-1,&tokens).is_some() && peek(&i,-1,&tokens).unwrap().id != TokenType::OpenParen {i+=1;continue;}
       if peek(&i, 1,&tokens).is_some() && peek(&i, 1,&tokens).unwrap().id != TokenType::CloseParen {i+=1;continue;}
-  
+
       // now we know that we are an Number, that our neibours are parentesis
      
       let num = new_tokens.pop().unwrap(); // we saved the number, but we need to pop another value
@@ -277,7 +277,7 @@ fn remove_solved_parentesis(tokens: Vec<Token>) -> Vec<Token> {
         
       // check if we need to add a multiplication
 
-      if peek(&i,-2,&tokens).is_some() && peek(&i,-2,&tokens).unwrap().id == TokenType::Number {
+      if peek(&i,-2,&tokens).is_some() && (peek(&i,-2,&tokens).unwrap().id == TokenType::Number || peek(&i,-2,&tokens).unwrap().id == TokenType::CloseParen) {
         new_tokens.push(Token {id: TokenType::Operation, value: Operation::Mul as i64, prio: 1});
       }
 

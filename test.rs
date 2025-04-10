@@ -43,7 +43,13 @@ fn run_test(test_num: u32, expr: &str,failing: bool,result: i64){
         exit(1);
     }
 
-    if res.parse::<i64>().unwrap() == result{
+    let parsed_res = res.parse::<i64>();
+    match parsed_res {
+        Err(_) => {println!("test {test_num}. failed: expected ./calc.elf {expr} to return {result}, but got {res}!");return;},
+        Ok(_) => {},
+    }
+
+    if parsed_res.unwrap() == result{
         return;
     }else{
         println!("test {test_num}. failed: expected ./calc.elf {expr} to return {result}, but got {res}!");
