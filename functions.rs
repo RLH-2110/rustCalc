@@ -39,12 +39,15 @@ fn sub(a: &i64, b: &i64) -> Result<i64,i32>  {
 
 fn mul(a: &i64, b: &i64) -> Result<i64,i32>  {
 
+  let fp: u8; unsafe { fp = crate::FIXED_POINT; }
+  let scale: i64 = 2i64.pow(fp as u32);
+
   let ret = a.checked_mul(*b);
   if ret.is_none(){
     println!("OVERFLOW!");
     return Err(crate::EXIT_MATH_OVERFLOW);
   }
-  return Ok(ret.unwrap());
+  return Ok(ret.unwrap()/scale);
 }
 
 fn div(a: &i64, b: &i64) -> Result<i64,i32>  {
@@ -54,10 +57,16 @@ fn div(a: &i64, b: &i64) -> Result<i64,i32>  {
     return Err(crate::EXIT_DIV_BY_ZERO);
   }
 
-  let ret = a.checked_div(*b);
+  let fp: u8; unsafe { fp = crate::FIXED_POINT; }
+  let scale: i64 = 2i64.pow(fp as u32);
+  let la = *a * scale;
+  let lb = *b;
+
+  let ret = la.checked_div(lb);
   if ret.is_none(){
     println!("OVERFLOW!");
     return Err(crate::EXIT_MATH_OVERFLOW);
   }
+
   return Ok(ret.unwrap());
 }

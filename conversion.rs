@@ -44,7 +44,10 @@ pub fn string_to_fp(str: &String) -> Result<i64,i32>{
 fn string_make_fp(fp: u8, str: &String) -> Result<i64,i32> {
 	debug_assert!(fp != 0);
 
-
+	if str.len() > crate::MAX_FP_SIZE as usize{
+		println!("A maximum of 18 digits are allowed after the decimal!");
+		return Err(crate::EXIT_TOO_BIG_FLOAT);
+	}
 	let div_val: i64 = 10i64.pow(str.len() as u32);
 	let mut result: i64 = 0;
 
@@ -52,7 +55,6 @@ fn string_make_fp(fp: u8, str: &String) -> Result<i64,i32> {
         Ok(v) => v,
         Err(_) => { println!("Numbers must be nummbers between 0 and 4294967295!"); return Err(crate::EXIT_INPUT_OVERFLOW);},
       } as i64; 
-
 
     let mut i = fp;
 	loop {
@@ -70,7 +72,6 @@ fn string_make_fp(fp: u8, str: &String) -> Result<i64,i32> {
 		}
 		result = result << 1;
 	}
-
 	return Ok(result);
 }
 

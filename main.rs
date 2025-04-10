@@ -39,11 +39,13 @@ pub const EXIT_INVAL_UNARY: i32 = 12;
 pub const EXIT_INVAL_OPERATION_ID: i32 = 13;
 pub const EXIT_INPUT_OVERFLOW: i32 = 14;
 pub const EXIT_HUMONGOUS_STRING: i32 = 15;
-//pub const EXIT_NO_ZERO_FOR_FIXED_POINT_MATH: i32 = 16;
+pub const EXIT_TOO_BIG_FLOAT: i32 = 16;
 
 pub const EXIT_USAGE: i32 = 100;
 
 static mut FIXED_POINT: u8 = 0; /* how many bits of fixed point */
+
+pub const MAX_FP_SIZE: u8 = 18;
 
 fn main(){
   let argv: Vec<String> = env::args().collect();
@@ -64,7 +66,7 @@ fn main(){
         Err(_) => {print_fp_error();0},
       };
 
-      if val > 18 {print_fp_error();} // limited to 18, so that the algorim to turn fixed point back to decimal does not overflow
+      if val > MAX_FP_SIZE {print_fp_error();} // limited to 18, so that the algorim to turn fixed point back to decimal does not overflow
 
       unsafe { FIXED_POINT = val; }
       expression_index+=2;

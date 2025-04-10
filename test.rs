@@ -83,7 +83,7 @@ fn run_test_fp(test_num: u32, expr: &str,failing: bool,result: f64, fp: u8){
 
     // handle failing tests
     if retcode == 0 && failing == true{
-        println!("test {test_num}. failed: expected ./calc.elf {expr} to fail, but no failure was found!");
+        println!("test {test_num}. failed: expected ./calc.elf -fp {fp} {expr} to fail, but no failure was found!");
         exit(1);
     }
     if retcode != 0 && failing == true{
@@ -94,20 +94,20 @@ fn run_test_fp(test_num: u32, expr: &str,failing: bool,result: f64, fp: u8){
 
 
     if retcode != 0 {
-        println!("test {test_num}. failed: expected ./calc.elf {expr} to return {result}, but got error {res}!");
+        println!("test {test_num}. failed: expected ./calc.elf -fp {fp} {expr} to return {result}, but got error {res}!");
         exit(1);
     }
 
     let parsed_res = res.parse::<f64>();
     match parsed_res {
-        Err(_) => {println!("test {test_num}. failed: expected ./calc.elf {expr} to return {result}, but got {res}!");return;},
+        Err(_) => {println!("test {test_num}. failed: expected ./calc.elf -fp {fp} {expr} to return {result}, but got {res}!");return;},
         Ok(_) => {},
     }
 
     if parsed_res.unwrap() == result{
         return;
     }else{
-        println!("test {test_num}. failed: expected ./calc.elf {expr} to return {result}, but got {res}!");
+        println!("test {test_num}. failed: expected ./calc.elf -fp {fp} {expr} to return {result}, but got {res}!");
         exit(1);
     }
 
@@ -174,8 +174,16 @@ fn main() {
     run_test_fp(45,"1.99",false,1.75,2);
     run_test_fp(46,"1.5+1.4",false,2.75,2);
     run_test_fp(47,"1.5*1.5",false,2.25,2);
-    run_test_fp(48,"2.25/2",false,1.0,2);
-    run_test_fp(49,"2.25/2",false,1.125,3);
+    run_test_fp(48,"2/0.125",false,16.0,3);
+    run_test_fp(49,"2.25/2",false,1.0,2);
+    run_test_fp(50,"2.25/2",false,1.125,3);
+    run_test_fp(51,"2.25*0.5",false,1.0,2);
+    run_test_fp(52,"2.25*0.5",false,1.125,3);
+    run_test_fp(53,"9999999999999999999999999999999999999999999999999999*0.5",true,0.0,3);
+    run_test_fp(54,"1.9999999999999999999999999999999999999999999999999999*0.5",true,0.0,3);
+    run_test_fp(55,"999999999999999999999999999999999999.9999999999999999999999999999999999999999999999999999*0.5",true,0.0,3);
+    run_test_fp(56,"999999999999999999999999999999999999.999999999999999999999999999999.9999999999999999999999*0.5",true,0.0,3);
+    run_test_fp(57,"0.5+.+0.5",true,0.0,3);
 
     println!("add more tests!");
 
