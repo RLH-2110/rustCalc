@@ -43,7 +43,13 @@ fn run_test(test_num: u32, expr: &str,failing: bool,result: i64){
         exit(1);
     }
 
-    if res.parse::<i64>().unwrap() == result{
+    let parsed_res = res.parse::<i64>();
+    match parsed_res {
+        Err(_) => {println!("test {test_num}. failed: expected ./calc.elf {expr} to return {result}, but got {res}!");return;},
+        Ok(_) => {},
+    }
+
+    if parsed_res.unwrap() == result{
         return;
     }else{
         println!("test {test_num}. failed: expected ./calc.elf {expr} to return {result}, but got {res}!");
@@ -84,6 +90,17 @@ fn main() {
     run_test(23,"4294967295*4294967295 ",true,0); // overflow
     run_test(24,"4294967295/1 ",false,4294967295);
     
+    run_test(25,"9(+5)",true,0); // make sure it fails correctly
+    run_test(26,"9(*5)",true,0);
+    run_test(27,"1(2)(3)",false,6);
+    run_test(28,"()",true,0); 
+    run_test(29,"2*(5)",false,10);
+    run_test(30,"2*(5+ *7)",true,0);
+
+    run_test(31,"9(2))",true,0);
+    run_test(32,"9((2)",true,0);
+    run_test(33,"1+3*4/2",false,7);
+    run_test(34,"2(5*(1+1))",false,20);
 
     println!("add more tests!");
 

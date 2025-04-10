@@ -2,3 +2,4 @@ token.txt
 *.o
 *.elf
 *.swp
+*.pdb

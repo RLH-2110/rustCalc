@@ -22,7 +22,7 @@ fn add(a: &i64, b: &i64) -> Result<i64,i32> {
   let ret = a.checked_add(*b);
   if ret.is_none(){
     println!("OVERFLOW!");
-    return Err(3);
+    return Err(crate::EXIT_MATH_OVERFLOW);
   }
   return Ok(ret.unwrap());
 }
@@ -32,7 +32,7 @@ fn sub(a: &i64, b: &i64) -> Result<i64,i32>  {
   let ret = a.checked_sub(*b);
   if ret.is_none(){
     println!("OVERFLOW!");
-    return Err(3);
+    return Err(crate::EXIT_MATH_OVERFLOW);
   }
   return Ok(ret.unwrap());
 }
@@ -42,7 +42,7 @@ fn mul(a: &i64, b: &i64) -> Result<i64,i32>  {
   let ret = a.checked_mul(*b);
   if ret.is_none(){
     println!("OVERFLOW!");
-    return Err(3);
+    return Err(crate::EXIT_MATH_OVERFLOW);
   }
   return Ok(ret.unwrap());
 }
@@ -51,13 +51,13 @@ fn div(a: &i64, b: &i64) -> Result<i64,i32>  {
 
   if *b == 0{
     println!("DIVISION BY ZERO!");
-    return Err(10);
+    return Err(crate::EXIT_DIV_BY_ZERO);
   }
 
   let ret = a.checked_div(*b);
   if ret.is_none(){
     println!("OVERFLOW!");
-    return Err(3);
+    return Err(crate::EXIT_MATH_OVERFLOW);
   }
   return Ok(ret.unwrap());
 }

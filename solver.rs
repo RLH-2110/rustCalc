@@ -20,7 +20,7 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
 
   if tokens.len() == 0 {
     println!("Something went horribly wrong! there are no tokens!");
-    return Err(6);
+    return Err(crate::EXIT_NO_TOKS);
   }
 
   // remove unary -
@@ -32,21 +32,22 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
   // detect leading operators
   if newtoks[0].id == TokenType::Operation {
     println!("leading operators at the start of an expression are not valid!");
-    return Err(8);
+    return Err(crate::EXIT_LEADING_OP);
   }
 
   // detect trailing operators
   if newtoks[newtoks.len()-1].id == TokenType::Operation {
     println!("trailing operators at the end of an expression are not valid!");
-    return Err(9);
+    return Err(crate::EXIT_TRAILING_OP);
   }
 
   // check for duplicate operators. something like "1++1"
-  if find_double_operators(&newtoks) { return Err(7); }  
+  if find_double_operators(&newtoks) { return Err(crate::EXIT_DOUBLE_OPS); }  
 
+  if has_other_unary(&newtoks) { println!("Only Minus is allowed as unary Operator!"); return Err(crate::EXIT_INVAL_UNARY);}
 
   let mut breaker: u16 = u16::MAX;
-  let mut toks = newtoks;
+  let mut toks = remove_solved_parentesis(newtoks);
 
   // as long as we have more than 1 token   (breaker is used to check for potental infinite loops)
   loop{
@@ -98,7 +99,7 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
 
   if toks.len() != 1{
     println!("Progamm error: caclulation took too long!");
-    return Err(11);
+    return Err(crate::EXIT_INFINITE_LOOP);
   }
 
   return Ok(toks[0].value);
@@ -185,7 +186,7 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Result<Vec<Token>,i32> {
             _ => 
               {  
                 println!("MUTLIPLE OPERATIONS AFTER EACH OTHER WITH NO NUMBER!");
-                return Err(7);
+                return Err(crate::EXIT_DOUBLE_OPS);
               },
           }
 
@@ -207,6 +208,20 @@ fn remove_unary_minus(tokens: Vec<Token>) -> Result<Vec<Token>,i32> {
       return Ok(toks);
     }
   }
+}
+
+fn has_other_unary(tokens: &Vec<Token>) -> bool{
+  let mut i = 0;
+  for token in tokens{
+    if token.id == TokenType::OpenParen {
+      if  peek(&i, 1,&tokens).is_some() && peek(&i, 1,&tokens).unwrap().id == TokenType::Operation {
+        return true;
+      }
+    }
+    i += 1;
+  }
+
+  return false;
 }
 
 /*find double opeprators (like 1++1) and returns true if they are found.
@@ -247,12 +262,13 @@ fn remove_solved_parentesis(tokens: Vec<Token>) -> Vec<Token> {
 
     loop{
       if i >= tokens.len() {break;}
+      
       new_tokens.push(tokens[i]);
 
       if tokens[i].id != TokenType::Number {i+=1;continue;}
       if peek(&i,-1,&tokens).is_some() && peek(&i,-1,&tokens).unwrap().id != TokenType::OpenParen {i+=1;continue;}
       if peek(&i, 1,&tokens).is_some() && peek(&i, 1,&tokens).unwrap().id != TokenType::CloseParen {i+=1;continue;}
-  
+
       // now we know that we are an Number, that our neibours are parentesis
      
       let num = new_tokens.pop().unwrap(); // we saved the number, but we need to pop another value
@@ -261,7 +277,7 @@ fn remove_solved_parentesis(tokens: Vec<Token>) -> Vec<Token> {
         
       // check if we need to add a multiplication
 
-      if peek(&i,-2,&tokens).is_some() && peek(&i,-2,&tokens).unwrap().id == TokenType::Number {
+      if peek(&i,-2,&tokens).is_some() && (peek(&i,-2,&tokens).unwrap().id == TokenType::Number || peek(&i,-2,&tokens).unwrap().id == TokenType::CloseParen) {
         new_tokens.push(Token {id: TokenType::Operation, value: Operation::Mul as i64, prio: 1});
       }
 
