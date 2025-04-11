@@ -135,7 +135,7 @@ fn peek<'a>(i: &usize, amount: i64, vec: &'a Vec<Token>) -> Option<&'a Token>{
  */
 fn remove_unary_minus(tokens: Vec<Token>) -> Result<Vec<Token>,i32> {
 
-  let mut toks = tokens.clone();
+  let mut toks = tokens;
   let mut found_unary: bool;
 
   loop{
