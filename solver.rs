@@ -3,6 +3,7 @@ use tokenize::Token;
 use tokenize::TokenType;
 use tokenize::Operation;
 use functions::calculate;
+use conversion::op_from_num;
 
 #[allow(unused_imports)]
 use tokenize::print_tokens;
@@ -79,7 +80,7 @@ pub fn solve(tokens: Vec<Token>) -> Result<i64,i32> {
 
       // do the calulation
       let result: Result<Token,i32>;
-      unsafe { result = calculate(&num.value,&peek(&i, 1,&toks).unwrap().value, &std::mem::transmute(op.value)); }
+      result = calculate(&num.value,&peek(&i, 1,&toks).unwrap().value, &op_from_num(op.value)?); 
       
       match result{
         Ok(val) => {newtoks.push(val);},
