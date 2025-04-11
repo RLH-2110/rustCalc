@@ -7,14 +7,16 @@ type MathOp = fn(&i64, &i64) -> Result<i64,i32>;
 const OP_LOOKUP: [MathOp;4] = [add,sub,mul,div];
 
 pub fn calculate(a: &i64, b: &i64,op: &Operation) -> Result<Token,i32> {
-  let result: Result<i64,i32>;
-  unsafe {result = OP_LOOKUP[std::mem::transmute::<Operation,usize>(*op)](a,b);}
-  
-  if result.is_err() {
-    return Err(result.unwrap_err());
+
+  if *op as usize > Operation::Div as usize{
+    println!("Operaton nr. {} is not implemented in the calculate function!",*op as usize);
+    return Err(crate::EXIT_OP_NOT_IMPLEMENTED);
   }
 
-  return Ok(Token {id: TokenType::Number, value: result.unwrap(), prio: 0});
+  let result: i64;
+  result = OP_LOOKUP[*op as usize](a,b)?;
+  
+  return Ok(Token {id: TokenType::Number, value: result, prio: 0});
 }
 
 fn add(a: &i64, b: &i64) -> Result<i64,i32> {

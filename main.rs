@@ -40,6 +40,7 @@ pub const EXIT_INVAL_OPERATION_ID: i32 = 13;
 pub const EXIT_INPUT_OVERFLOW: i32 = 14;
 pub const EXIT_HUMONGOUS_STRING: i32 = 15;
 pub const EXIT_TOO_BIG_FLOAT: i32 = 16;
+pub const EXIT_OP_NOT_IMPLEMENTED: i32 = 17;
 
 pub const EXIT_USAGE: i32 = 100;
 

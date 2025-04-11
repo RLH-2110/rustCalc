@@ -12,7 +12,6 @@ pub fn op_from_num(num: i64) -> Result<Operation,i32> {
 	unsafe { return Ok(std::mem::transmute(num)); }
 }
 
-
 pub fn string_to_fp(str: &String) -> Result<i64,i32>{
 
 	let fp: u8;
